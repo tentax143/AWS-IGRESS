@@ -1,0 +1,172 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import tensorflow as tf
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression
+from sklearn.svm import LinearSVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from keras.models import Sequential
+from keras.layers import Dense
+from sklearn.metrics import classification_report
+
+# Load the data
+data = pd.read_csv('/content/AWS-CA-DATA (1).csv', skiprows=[21964,126699], low_memory=True)
+data.drop_duplicates(subset=['categoryName', 'title'], inplace=True)
+
+# Create a graph of the categories
+plt.figure(figsize=(10, 10))
+data = data.set_index(['categoryName', 'title']).unstack()
+
+# Print the columns to inspect the names
+print(data.columns)
+
+# Create a heatmap
+sns.heatmap(data.groupby('categoryName').count(), cmap='Blues', vmin=0)
+plt.title('Number of products in each category')
+plt.xlabel('Category')
+plt.ylabel('Number of products')
+plt.show()
+
+
+# Create a graph of the price distribution
+plt.figure(figsize=(10, 10))
+sns.distplot(data['price'])
+plt.title('Price distribution')
+plt.xlabel('Price')
+plt.ylabel('Frequency')
+plt.show()
+
+# Create a graph of the best seller distribution
+plt.figure(figsize=(10, 10))
+sns.distplot(data['isBestSeller'])
+plt.title('Best seller distribution')
+plt.xlabel('Best seller')
+plt.ylabel('Frequency')
+plt.show()
+
+# Create a graph of the bought in last month distribution
+plt.figure(figsize=(10, 10))
+sns.distplot(data['boughtInLastMonth'])
+plt.title('Bought in last month distribution')
+plt.xlabel('Bought in last month')
+plt.ylabel('Frequency')
+plt.show()
+
+# Create a graph of the list price distribution
+plt.figure(figsize=(10, 10))
+sns.distplot(data['listPrice'])
+plt.title('List price distribution')
+plt.xlabel('List price')
+plt.ylabel('Frequency')
+plt.show()
+
+# Create a graph of the reviews distribution
+plt.figure(figsize=(10, 10))
+sns.distplot(data['reviews'])
+plt.title('Reviews distribution')
+plt.xlabel('Reviews')
+plt.ylabel('Frequency')
+plt.show()
+
+# Create a graph of the stars distribution
+plt.figure(figsize=(10, 10))
+sns.distplot(data['stars'])
+plt.title('Stars distribution')
+plt.xlabel('Stars')
+plt.ylabel('Frequency')
+plt.show()
+
+# Create a correlation matrix
+corr = data.corr()
+plt.figure(figsize=(10, 10))
+sns.heatmap(corr, cmap='Blues')
+plt.title('Correlation matrix')
+plt.xlabel('Feature')
+plt.ylabel('Feature')
+plt.show()
+
+# Create a principal component analysis
+pca = PCA(n_components=2)
+pca.fit(data)
+plt.figure(figsize=(10, 10))
+plt.scatter(pca.components_[0], pca.components_[1])
+plt.xlabel('Principal component 1')
+plt.ylabel('Principal component 2')
+plt.title('Principal component analysis')
+plt.show()
+
+# Create a linear regression model
+model = LinearRegression()
+model.fit(data[['price', 'isBestSeller', 'boughtInLastMonth', 'listPrice', 'reviews', 'stars']], data['categoryName'])
+plt.figure(figsize=(10, 10))
+plt.scatter(data['categoryName'], model.predict(data[['price', 'isBestSeller', 'bought_in_last_month', 'list_price', 'reviews', 'stars']]))
+plt.xlabel('Product name')
+plt.ylabel('Predicted product name')
+plt.title('Linear regression model')
+plt.show()
+
+# Create a support vector machine model
+model = svm.LinearSVC()
+model.fit(data[['price', 'isBestseller', 'boughtInLastMonth', 'listPrice', 'reviews', 'stars']], data['categoryName'])
+plt.figure(figsize=(10, 10))
+plt.scatter(data['categoryName'], model.predict(data[['price', 'isBestSeller', 'boughtInLastMonth', 'listPrice', 'reviews', 'stars']]))
+plt.xlabel('Product name')
+plt.ylabel('Predicted product name')
+plt.title('Support vector machine model')
+plt.show()
+
+# Create a random forest model
+model = RandomForestClassifier()
+model.fit(data[['price', 'isBestSeller', 'boughtInLastMonth', 'listPrice', 'reviews', 'stars']], data['categoryName'])
+plt.figure(figsize=(10, 10))
+plt.scatter(data['categoryName'], model.predict(data[['price', 'isBestSeller', 'boughtInLastMonth', 'listPrice', 'reviews', 'stars']]))
+plt.xlabel('Product name')
+plt.ylabel('Predicted product name')
+plt.title('Random forest model')
+plt.show()
+
+# Create a gradient boosting model
+model = GradientBoostingClassifier()
+model.fit(data[['price', 'isBestSeller', 'boughtInLastMonth', 'listPrice', 'reviews', 'stars']], data['categoryName'])
+plt.figure(figsize=(10, 10))
+plt.scatter(data['categoryName'], model.predict(data[['price', 'isBestSeller', 'boughtInLastMonth', 'listPrice', 'reviews', 'stars']]))
+plt.xlabel('Product name')
+plt.ylabel('Predicted product name')
+plt.title('Gradient boosting model')
+plt.show()
+
+# Create a neural network model
+model = keras.models.Sequential()
+model.add(keras.layers.Dense(units=128, activation='relu'))
+model.add(keras.layers.Dense(units=64, activation='relu'))
+model.add(keras.layers.Dense(units=32, activation='relu'))
+model.add(keras.layers.Dense(units=1, activation='sigmoid'))
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(data[['price', 'isBestSeller', 'boughtInLastMonth', 'listPrice', 'reviews', 'stars']], data['categoryName'], epochs=100)
+plt.figure(figsize=(10, 10))
+plt.plot(model.history.history['accuracy'])
+plt.title('Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.show()
+plt.figure(figsize=(10, 10))
+plt.plot(model.history.history['loss'])
+plt.title('Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.show()
+
+# Save the model
+model.save('recommendation_system.h5')
+
+# Load the model
+model = keras.models.load_model('recommendation_system.h5')
+
+# Make predictions
+predictions = model.predict(data[['price', 'isBestSeller', 'boughtInLastMonth', 'listPrice', 'reviews', 'stars']])
+
+# Evaluate the model
+print(classification_report(data['categoryName'], predictions))
